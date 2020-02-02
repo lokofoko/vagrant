@@ -64,7 +64,7 @@ Vagrant.configure("2") do |config|
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
     config.vm.provision "shell", inline: <<-SHELL
-      yum install -y vim epel-release cockpit sos
+      yum install -y vim epel-release cockpit sos postfix bash-completion man-pages nc telnet
     SHELL
     config.vm.network "forwarded_port", guest: 9090, host: 19090
     
