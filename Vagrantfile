@@ -29,7 +29,6 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
   config.vm.network "forwarded_port", guest: 9090, host: 29090, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", id: 'ssh', guest: 22, host: 2222, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 25, host: 1025, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 587, host: 1587, host_ip: "127.0.0.1"
   config.vm.network "forwarded_port", guest: 110, host: 1110, host_ip: "127.0.0.1"
