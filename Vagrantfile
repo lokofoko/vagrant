@@ -28,12 +28,22 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
+  # tcp 
   config.vm.network "forwarded_port", guest: 9090, host: 29090, host_ip: "127.0.0.1"
-  config.vm.network "forwarded_port", guest: 25, host: 1025, host_ip: "127.0.0.1"
+  # smtp
+  config.vm.network "forwarded_port", guest: 25, host: 1025, host_ip: "127.0.0.1" 
+  # submission
   config.vm.network "forwarded_port", guest: 587, host: 1587, host_ip: "127.0.0.1"
+  # pop
   config.vm.network "forwarded_port", guest: 110, host: 1110, host_ip: "127.0.0.1"
+  # imap
   config.vm.network "forwarded_port", guest: 143, host: 1143, host_ip: "127.0.0.1"
-
+  # dnsauth 
+  config.vm.network "forwarded_port", guest: 54, host: 154, host_ip: "127.0.0.1"
+  # dnsrecurs
+  config.vm.network "forwarded_port", guest: 53, host: 153, host_ip: "127.0.0.1"
+  # webmail roundcube
+  config.vm.network "forwarded_port", guest: 80, host: 8081, host_ip: "127.0.0.1"
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   # config.vm.network "private_network", ip: "192.168.33.10"
@@ -68,11 +78,13 @@ Vagrant.configure("2") do |config|
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
     config.vm.provision "shell", inline: <<-'SHELL'
-      yum install -y vim epel-release cockpit sos postfix bash-completion man-pages nc telnet dovecot cyrus-sasl cyrus-sasl-plain
+      yum install -y vim epel-release cockpit sos postfix bash-completion man-pages nc telnet dovecot cyrus-sasl cyrus-sasl-plain pdns pdns-recursor bind-utils    
       systemctl enable --now postfix
       systemctl enable --now dovecot
       systemctl enable --now cockpit.socket
       systemctl enable --now saslauthd.service
+      systemctl enable --now pdns
+      systemctl enable --now pdns-recursor
       hostnamectl set-hostname allinone-vl.localhost      
       useradd engineer 
       usermod -p '$6$xyz$.UccqMWqX8VK4PRzmKTR1woU2y5IgDas9n.XPkhgK8M62yVqI4sLx.Yw2AC5z7t4Ke3NiU7aq7i3Su5QdrRcF1' engineer
@@ -88,8 +100,14 @@ Vagrant.configure("2") do |config|
       systemctl restart dovecot
       printf "a login contractor conpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
       printf "a login engineer engpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
-        
-    
+      printf "a login manager manpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
+      sudo sed -i 's/#[[:space:]]local-port=/local-port=54/' /etc/pdns/pdns.conf
+      echo -e "zone \"youdidnotevenimaginethisdomainexists.com\" {\n    file \"\/var\/lib\/pdns\/youdidnotevenimaginethisdomainexists.com.db\";\n    type master;\n};" > /etc/pdns/named.conf
+      sudo sed -i 's/#[[:space:]]forward-zones=/forward-zones=youdidnotevenimaginethisdomainexists.com=127.0.0.1:54/' /etc/pdns-recursor/recursor.conf
+      systemctl restart pdns
+      systemctl restart pdns-recursor
+
+
     SHELL
     
     
