@@ -106,10 +106,10 @@ Vagrant.configure("2") do |config|
       sudo sed -i 's/#[[:space:]]forward-zones=/forward-zones=youdidnotevenimaginethisdomainexists.com=127.0.0.1:54/' /etc/pdns-recursor/recursor.conf
       systemctl restart pdns
       systemctl restart pdns-recursor
-
+      
 
     SHELL
-    
+    config.vm.provision "shell", path: "configure_roundcube_apache.sh"
     
 end
 	
