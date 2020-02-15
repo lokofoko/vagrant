@@ -15,6 +15,8 @@ sudo dnf module reset php
 
 sudo dnf module enable php:remi-7.4 -y
 
+sudo dnf module enable mysqld
+
 sudo dnf install -y mysql mysql-server httpd php-ldap php-imagick php-common php-gd php-imap php-json php-curl php-zip php-xml php-mbstring php-bz2 php-intl php-gmp
 
 systemctl enable --now httpd
@@ -31,7 +33,7 @@ flush privileges;
 
 EOF
 
-mysql -u root -p roundcube < /var/www/roundcube/SQL/mysql.initial.sql
+mysql -u root roundcube < /var/www/roundcube/SQL/mysql.initial.sql
 
 echo -e "<VirtualHost *:80>
   ServerName mail.your-domain.com
