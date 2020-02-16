@@ -77,15 +77,18 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
-    config.vm.provision "shell", inline: <<-'SHELL'
-      yum install -y vim epel-release cockpit sos postfix bash-completion man-pages nc telnet dovecot cyrus-sasl cyrus-sasl-plain pdns pdns-recursor bind-utils    
+    config.vm.provision "install and enable", type: "shell", inline: <<-'SHELL'
+      yum install -y epel-release 
+      yum install -y vim cockpit sos postfix bash-completion man-pages nc telnet dovecot cyrus-sasl cyrus-sasl-plain pdns pdns-recursor bind-utils    
       systemctl enable --now postfix
       systemctl enable --now dovecot
       systemctl enable --now cockpit.socket
       systemctl enable --now saslauthd.service
       systemctl enable --now pdns
       systemctl enable --now pdns-recursor
-      hostnamectl set-hostname allinone-vl.localhost      
+      hostnamectl set-hostname allinone-vl.localhost
+   SHELL
+    config.vm.provision "email config", type: "shell", inline: <<-'SHELL'     
       useradd engineer 
       usermod -p '$6$xyz$.UccqMWqX8VK4PRzmKTR1woU2y5IgDas9n.XPkhgK8M62yVqI4sLx.Yw2AC5z7t4Ke3NiU7aq7i3Su5QdrRcF1' engineer
       useradd manager
@@ -98,17 +101,29 @@ Vagrant.configure("2") do |config|
       sudo chmod 0600 /var/mail/*
       sudo sed -i '/mail\_location = mbox\:\~\/mail\:INBOX=\/var\/mail\/\%u/s/^#//g' /etc/dovecot/conf.d/10-mail.conf
       systemctl restart dovecot
+      sudo sed -i "/^manager/d" /etc/aliases && newaliases
       printf "a login contractor conpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
       printf "a login engineer engpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
       printf "a login manager manpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
+   SHELL
+    config.vm.provision "pdns config", type: "shell", inline: <<-'SHELL'
       sudo sed -i 's/#[[:space:]]local-port=/local-port=54/' /etc/pdns/pdns.conf
-      echo -e "zone \"youdidnotevenimaginethisdomainexists.com\" {\n    file \"\/var\/lib\/pdns\/youdidnotevenimaginethisdomainexists.com.db\";\n    type master;\n};" > /etc/pdns/named.conf
+      sudo echo "bind-config=/etc/pdns/named.conf" >> /etc/pdns/pdns.conf
+      sudo echo -e "zone \"youdidnotevenimaginethisdomainexists.com\" {\n    file \"/var/lib/pdns/youdidnotevenimaginethisdomainexists.com.db";\n    type master;\n};" > /etc/pdns/named.conf
       sudo sed -i 's/#[[:space:]]forward-zones=/forward-zones=youdidnotevenimaginethisdomainexists.com=127.0.0.1:54/' /etc/pdns-recursor/recursor.conf
+      sudo sed -i 's/#[[:space:]]local-port=53/local-port=53/' /etc/pdns-recursor/recursor.conf
+      mkdir -p var/lib/pdns
+      cp /vagrant/domaindb.com.db /var/lib/pdns/youdidnotevenimaginethisdomainexists.com.db
+      sudo nmcli con modify 'eth0' ipv4.dns '127.0.0.1'
+      systemctl restart NetworkManager
       systemctl restart pdns
       systemctl restart pdns-recursor
+   SHELL
+    config.vm.provision "shell", type: "shell", inline: <<-'SHELL'
       
 
-    SHELL
+
+   SHELL
     config.vm.provision "shell", path: "configure_roundcube_apache.sh"
     
 end

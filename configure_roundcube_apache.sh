@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /etc/tmp/
+cd /tmp/
 
 wget https://github.com/roundcube/roundcubemail/releases/download/1.4.2/roundcubemail-1.4.2-complete.tar.gz
 tar xvf roundcubemail-1.4.2-complete.tar.gz
@@ -15,9 +15,11 @@ sudo dnf module reset php
 
 sudo dnf module enable php:remi-7.4 -y
 
-sudo dnf module enable mysqld
+sudo dnf install -y php-fpm php-mysql mysql mysql-server httpd php-ldap php-imagick php-common php-gd php-imap php-json php-curl php-zip php-xml php-mbstring php-bz2 php-intl php-gmp
 
-sudo dnf install -y mysql mysql-server httpd php-ldap php-imagick php-common php-gd php-imap php-json php-curl php-zip php-xml php-mbstring php-bz2 php-intl php-gmp
+systemctl enable --now mysqld
+
+systemctl enable --now php-fpm
 
 systemctl enable --now httpd
 
