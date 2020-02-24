@@ -77,41 +77,6 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
-<<<<<<< Updated upstream
-    config.vm.provision "shell", inline: <<-'SHELL'
-      yum install -y vim epel-release cockpit sos postfix bash-completion man-pages nc telnet dovecot cyrus-sasl cyrus-sasl-plain pdns pdns-recursor bind-utils    
-      systemctl enable --now postfix
-      systemctl enable --now dovecot
-      systemctl enable --now cockpit.socket
-      systemctl enable --now saslauthd.service
-      systemctl enable --now pdns
-      systemctl enable --now pdns-recursor
-      hostnamectl set-hostname allinone-vl.localhost      
-      useradd engineer 
-      usermod -p '$6$xyz$.UccqMWqX8VK4PRzmKTR1woU2y5IgDas9n.XPkhgK8M62yVqI4sLx.Yw2AC5z7t4Ke3NiU7aq7i3Su5QdrRcF1' engineer
-      useradd manager
-      usermod -p '$6$xyz$PcPt/h72LIQm.YoxBmDLqfpbX1w3vhcJ1LwyYjOaslRr67l0g3ZkE5nKN0c4Ed98wYTvMWvhlGcV7NZorCE2i/' manager
-      useradd contractor
-      usermod -p '$6$xyz$tlQI91A01E6TWfFL6jqBSSLdzLKJtFyF2aWfdTZyOBUn56UjQbMyecGla5IMGqX./neusxkBsr3IwUGZhTnel0' contractor
-      sudo echo "# This is some new conf\nsmtpd_sasl_auth_enable = yes" >> /etc/postfix/main.cf
-      sudo sed -i 's/inet_interfaces = localhost/inet_interfaces = all/' /etc/postfix/main.cf
-      systemctl restart postfix.service
-      sudo chmod 0600 /var/mail/*
-      sudo sed -i '/mail\_location = mbox\:\~\/mail\:INBOX=\/var\/mail\/\%u/s/^#//g' /etc/dovecot/conf.d/10-mail.conf
-      systemctl restart dovecot
-      printf "a login contractor conpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
-      printf "a login engineer engpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
-      printf "a login manager manpass\na list '*' *\na logout\n" | openssl s_client -connect 127.0.0.1:143 -starttls imap
-      sudo sed -i 's/#[[:space:]]local-port=/local-port=54/' /etc/pdns/pdns.conf
-      echo -e "zone \"youdidnotevenimaginethisdomainexists.com\" {\n    file \"\/var\/lib\/pdns\/youdidnotevenimaginethisdomainexists.com.db\";\n    type master;\n};" > /etc/pdns/named.conf
-      sudo sed -i 's/#[[:space:]]forward-zones=/forward-zones=youdidnotevenimaginethisdomainexists.com=127.0.0.1:54/' /etc/pdns-recursor/recursor.conf
-      systemctl restart pdns
-      systemctl restart pdns-recursor
-
-
-    SHELL
-    
-=======
     config.vm.provision "install and enable", type: "shell", inline: <<-'SHELL'
       dnf install dnf install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
       systemctl enable --now puppet
@@ -124,7 +89,7 @@ Vagrant.configure("2") do |config|
       /opt/puppetlabs/bin/puppet apply --test --verbose supplementary.pp
       
    SHELL
->>>>>>> Stashed changes
+
     
 end
 	
