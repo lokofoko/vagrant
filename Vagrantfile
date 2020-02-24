@@ -77,6 +77,7 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
+<<<<<<< Updated upstream
     config.vm.provision "shell", inline: <<-'SHELL'
       yum install -y vim epel-release cockpit sos postfix bash-completion man-pages nc telnet dovecot cyrus-sasl cyrus-sasl-plain pdns pdns-recursor bind-utils    
       systemctl enable --now postfix
@@ -110,6 +111,20 @@ Vagrant.configure("2") do |config|
 
     SHELL
     
+=======
+    config.vm.provision "install and enable", type: "shell", inline: <<-'SHELL'
+      dnf install dnf install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+      systemctl enable --now puppet
+      cp /vagrant/*.pp ~/puppet_manifests/ 
+      /opt/puppetlabs/bin/puppet apply --test --verbose init.pp
+      /opt/puppetlabs/bin/puppet apply --test --verbose user.pp
+      /opt/puppetlabs/bin/puppet apply --test --verbose install.pp
+      /opt/puppetlabs/bin/puppet apply --test --verbose config.pp
+      /opt/puppetlabs/bin/puppet apply --test --verbose services.pp
+      /opt/puppetlabs/bin/puppet apply --test --verbose supplementary.pp
+      
+   SHELL
+>>>>>>> Stashed changes
     
 end
 	
