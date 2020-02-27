@@ -78,17 +78,20 @@ Vagrant.configure("2") do |config|
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
     config.vm.provision "install and enable", type: "shell", inline: <<-'SHELL'
-      dnf install dnf install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+      dnf install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
       systemctl enable --now puppet
-      cp /vagrant/*.pp ~/puppet_manifests/ 
-      /opt/puppetlabs/bin/puppet apply --test --verbose init.pp
-      /opt/puppetlabs/bin/puppet apply --test --verbose user.pp
-      /opt/puppetlabs/bin/puppet apply --test --verbose install.pp
-      /opt/puppetlabs/bin/puppet apply --test --verbose config.pp
-      /opt/puppetlabs/bin/puppet apply --test --verbose services.pp
-      /opt/puppetlabs/bin/puppet apply --test --verbose supplementary.pp
-      
+      cp /vagrant/manifests/*.pp ~/puppet_manifests/ 
    SHELL
+    config.vm.provision "puppet" do |puppet|
+      puppet.manifests_path = "manifests"
+      
+      puppet.manifest_file = "user.pp"
+      puppet.manifest_file = "install.pp"
+      puppet.manifest_file = "config.pp"
+      puppet.manifest_file = "services.pp"
+      
+      
+   end
 
     
 end
