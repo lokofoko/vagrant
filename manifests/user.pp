@@ -1,5 +1,5 @@
-host { 'allinone-vl.localhost':
-  ensure => present,
+exec { 'Set hostname':
+  command => '/usr/bin/hostnamectl set-hostname allinone-vl.localhost',
 }
 user { 'engineer2':
   ensure => present,

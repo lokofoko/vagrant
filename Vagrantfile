@@ -78,21 +78,40 @@ Vagrant.configure("2") do |config|
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
     config.vm.provision "install and enable", type: "shell", inline: <<-'SHELL'
-      dnf install https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+      dnf install -y https://yum.puppetlabs.com/puppet-release-el-8.noarch.rpm
+      dnf install -y puppet
       systemctl enable --now puppet
+      mkdir -p ~/puppet_manifests
       cp /vagrant/manifests/*.pp ~/puppet_manifests/ 
    SHELL
-    config.vm.provision "puppet" do |puppet|
+    config.vm.provision "User creation via puppet",type: "puppet" do |puppet|
       puppet.manifests_path = "manifests"
-      
       puppet.manifest_file = "user.pp"
+      #puppet.manifest_file = "install.pp"
+      #puppet.manifest_file = "config.pp"
+      #puppet.manifest_file = "services.pp"
+   end
+     config.vm.provision "Installation of packages via puppet",type: "puppet" do |puppet|
+      puppet.manifests_path = "manifests"
+      #puppet.manifest_file = "user.pp"
       puppet.manifest_file = "install.pp"
+      #puppet.manifest_file = "config.pp"
+      #puppet.manifest_file = "services.pp"
+   end
+      config.vm.provision "Configure server via puppet",type: "puppet" do |puppet|
+      puppet.manifests_path = "manifests"
+      #puppet.manifest_file = "user.pp"
+      #puppet.manifest_file = "install.pp"
       puppet.manifest_file = "config.pp"
+      #puppet.manifest_file = "services.pp"
+   end
+      config.vm.provision "Configure services via puppet",type: "puppet" do |puppet|
+      puppet.manifests_path = "manifests"
+      #puppet.manifest_file = "user.pp"
+      #puppet.manifest_file = "install.pp"
+      #puppet.manifest_file = "config.pp"
       puppet.manifest_file = "services.pp"
-      
-      
    end
 
-    
 end
 	
